@@ -4,7 +4,7 @@
 
 BUILDER ?= ingressmonitorcontroller-builder
 BINARY ?= IngressMonitorController
-DOCKER_IMAGE ?= dieunb/ingressmonitorcontroller
+DOCKER_IMAGE ?= stakater/ingressmonitorcontroller
 
 # Default value "dev"
 DOCKER_TAG ?= dev

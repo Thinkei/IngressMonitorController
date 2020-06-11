@@ -42,7 +42,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
 
-	log.Info("apiKey: " + service.apiKey)
+	// log.Info("apiKey: " + service.apiKey)
 
 	client, err := pingdom.NewClientWithConfig(pingdom.ClientConfig{
 		APIToken: service.apiKey,

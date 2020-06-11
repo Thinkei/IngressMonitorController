@@ -32,22 +32,15 @@ const (
 // PingdomMonitorService interfaces with MonitorService
 type PingdomMonitorService struct {
 	apiKey            string
-	url               string
 	alertContacts     string
 	alertIntegrations string
-	username          string
-	password          string
-	accountEmail      string
 	client            *pingdom.Client
 }
 
 func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.apiKey = p.ApiKey
-	service.url = p.ApiURL
 	service.alertContacts = p.AlertContacts
 	service.alertIntegrations = p.AlertIntegrations
-	service.username = p.Username
-	service.password = p.Password
 
 	log.Info("apiKey: " + service.apiKey)
 
@@ -133,7 +126,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Println("Unable to parse the URL: ", service.url)
+		log.Println("Unable to parse the URL: ", monitor.URL)
 	}
 
 	if url.Scheme == "https" {

@@ -3,13 +3,14 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/russellcardullo/go-pingdom/pingdom"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/jsdidierlaurent/go-pingdom/pingdom"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
 	"github.com/stakater/IngressMonitorController/pkg/util"
@@ -48,12 +49,14 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.username = p.Username
 	service.password = p.Password
 
-	// Check if config file defines a multi-user config
-	if p.AccountEmail != "" {
-		service.accountEmail = p.AccountEmail
-		service.client = pingdom.NewMultiUserClient(service.username, service.password, service.apiKey, service.accountEmail)
+	client, err := pingdom.NewClientWithConfig(pingdom.ClientConfig{
+		APIToken: service.apiKey,
+	})
+
+	if err != nil {
+		fmt.Println("Init client error: ", err.Error())
 	} else {
-		service.client = pingdom.NewClient(service.username, service.password, service.apiKey)
+		service.client = client
 	}
 }
 

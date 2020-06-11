@@ -27,6 +27,7 @@ require (
 	github.com/hashicorp/golang-lru v0.0.0-20160207214719-a0d98a5f2880 // indirect
 	github.com/howeyc/gopass v0.0.0-20170109162249-bf9dde6d0d2c // indirect
 	github.com/imdario/mergo v0.3.7
+	github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20191016073917-beef4d2f78cd
 	github.com/json-iterator/go v0.0.0-20170829155851-36b14963da70 // indirect
 	github.com/juju/ratelimit v0.0.0-20170523012141-5b9ff8664717 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0

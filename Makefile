@@ -7,7 +7,7 @@ BINARY ?= IngressMonitorController
 DOCKER_IMAGE ?= dieunb/ingressmonitorcontroller
 
 # Default value "dev"
-DOCKER_TAG ?= dev
+DOCKER_TAG ?= dev1
 REPOSITORY = ${DOCKER_IMAGE}:${DOCKER_TAG}
 
 VERSION=$(shell cat .version)

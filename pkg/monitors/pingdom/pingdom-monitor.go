@@ -49,6 +49,8 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	service.username = p.Username
 	service.password = p.Password
 
+	log.Info("apiKey: " + service.apiKey)
+
 	client, err := pingdom.NewClientWithConfig(pingdom.ClientConfig{
 		APIToken: service.apiKey,
 	})

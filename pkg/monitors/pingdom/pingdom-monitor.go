@@ -93,7 +93,9 @@ func (service *PingdomMonitorService) Add(m models.Monitor) {
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
-		log.Error("Error Adding Monitor: ", err.Error())
+		log.WithFields(log.Fields{
+			"monitor": m.Name,
+		}).Error("Error Adding Monitor: ", err.Error())
 	} else {
 		log.Println("Added monitor for: ", m.Name)
 	}
@@ -105,7 +107,9 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
-		log.Error("Error updating Monitor: ", err.Error())
+		log.WithFields(log.Fields{
+			"monitor": m.Name,
+		}).Error("Error updating Monitor: ", err.Error())
 	} else {
 		log.Println("Updated Monitor: ", resp)
 	}
@@ -116,7 +120,9 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
-		log.Error("Error deleting Monitor: ", err.Error())
+		log.WithFields(log.Fields{
+			"monitor": m.Name,
+		}).Error("Error deleting Monitor: ", err.Error())
 	} else {
 		log.Println("Delete Monitor: ", resp)
 	}
@@ -126,7 +132,9 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Error("Unable to parse the URL: ", monitor.URL)
+		log.WithFields(log.Fields{
+			"monitor": monitor.Name,
+		}).Error("Unable to parse the URL: ", monitor.URL)
 	}
 
 	if url.Scheme == "https" {
@@ -203,7 +211,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		if err == nil {
 			httpCheck.Resolution = intValue
 		} else {
-			log.Error("Error decoding input into an integer")
+			log.Error("Error decoding input into an integer", value)
 			httpCheck.Resolution = 1
 		}
 	} else {
@@ -215,7 +223,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		if err == nil {
 			httpCheck.SendNotificationWhenDown = intValue
 		} else {
-			log.Error("Error decoding input into an integer")
+			log.Error("Error decoding input into an integer", value)
 			httpCheck.SendNotificationWhenDown = 3
 		}
 	} else {
@@ -227,7 +235,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		httpCheck.RequestHeaders = make(map[string]string)
 		err := json.Unmarshal([]byte(value), &httpCheck.RequestHeaders)
 		if err != nil {
-			log.Error("Error Converting from string to JSON object")
+			log.Error("Error Converting from string to JSON object", value)
 		}
 	}
 

@@ -49,7 +49,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 	})
 
 	if err != nil {
-		fmt.Println("Init client error: ", err.Error())
+		log.Error("Init client error: ", err.Error())
 	} else {
 		service.client = client
 	}
@@ -73,7 +73,7 @@ func (service *PingdomMonitorService) GetAll() []models.Monitor {
 
 	checks, err := service.client.Checks.List()
 	if err != nil {
-		log.Println("Error received while listing checks: ", err.Error())
+		log.Error("Error received while listing checks: ", err.Error())
 		return nil
 	}
 	for _, mon := range checks {
@@ -93,7 +93,7 @@ func (service *PingdomMonitorService) Add(m models.Monitor) {
 
 	_, err := service.client.Checks.Create(&httpCheck)
 	if err != nil {
-		log.Println("Error Adding Monitor: ", err.Error())
+		log.Error("Error Adding Monitor: ", err.Error())
 	} else {
 		log.Println("Added monitor for: ", m.Name)
 	}
@@ -105,7 +105,7 @@ func (service *PingdomMonitorService) Update(m models.Monitor) {
 
 	resp, err := service.client.Checks.Update(monitorID, &httpCheck)
 	if err != nil {
-		log.Println("Error updating Monitor: ", err.Error())
+		log.Error("Error updating Monitor: ", err.Error())
 	} else {
 		log.Println("Updated Monitor: ", resp)
 	}
@@ -116,7 +116,7 @@ func (service *PingdomMonitorService) Remove(m models.Monitor) {
 
 	resp, err := service.client.Checks.Delete(monitorID)
 	if err != nil {
-		log.Println("Error deleting Monitor: ", err.Error())
+		log.Error("Error deleting Monitor: ", err.Error())
 	} else {
 		log.Println("Delete Monitor: ", resp)
 	}
@@ -126,7 +126,7 @@ func (service *PingdomMonitorService) createHttpCheck(monitor models.Monitor) pi
 	httpCheck := pingdom.HttpCheck{}
 	url, err := url.Parse(monitor.URL)
 	if err != nil {
-		log.Println("Unable to parse the URL: ", monitor.URL)
+		log.Error("Unable to parse the URL: ", monitor.URL)
 	}
 
 	if url.Scheme == "https" {
@@ -168,7 +168,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		userIdsStringArray := strings.Split(value, "-")
 
 		if userIds, err := util.SliceAtoi(userIdsStringArray); err != nil {
-			log.Println("Error decoding user ids annotation", err.Error())
+			log.Error("Error decoding user ids annotation", err.Error())
 		} else {
 			httpCheck.UserIds = userIds
 		}
@@ -178,7 +178,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		integrationIdsStringArray := strings.Split(value, "-")
 
 		if integrationIds, err := util.SliceAtoi(integrationIdsStringArray); err != nil {
-			log.Println("Error decoding integration ids annotation into integers", err.Error())
+			log.Error("Error decoding integration ids annotation into integers", err.Error())
 		} else {
 			httpCheck.IntegrationIds = integrationIds
 		}
@@ -203,7 +203,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		if err == nil {
 			httpCheck.Resolution = intValue
 		} else {
-			log.Println("Error decoding input into an integer")
+			log.Error("Error decoding input into an integer")
 			httpCheck.Resolution = 1
 		}
 	} else {
@@ -215,7 +215,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		if err == nil {
 			httpCheck.SendNotificationWhenDown = intValue
 		} else {
-			log.Println("Error decoding input into an integer")
+			log.Error("Error decoding input into an integer")
 			httpCheck.SendNotificationWhenDown = 3
 		}
 	} else {
@@ -227,7 +227,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 		httpCheck.RequestHeaders = make(map[string]string)
 		err := json.Unmarshal([]byte(value), &httpCheck.RequestHeaders)
 		if err != nil {
-			log.Println("Error Converting from string to JSON object")
+			log.Error("Error Converting from string to JSON object")
 		}
 	}
 
@@ -243,7 +243,7 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 			httpCheck.Password = passwordValue
 			log.Println("Basic auth requirement detected. Setting username and password for httpCheck")
 		} else {
-			log.Println("Error reading basic auth password from environment variable")
+			log.Error("Error reading basic auth password from environment variable")
 		}
 	}
 

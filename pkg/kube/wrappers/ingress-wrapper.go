@@ -1,10 +1,11 @@
 package wrappers
 
 import (
-	"log"
 	"net/url"
 	"path"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/stakater/IngressMonitorController/pkg/constants"
 	"k8s.io/api/extensions/v1beta1"
@@ -69,7 +70,7 @@ func (iw *IngressWrapper) getIngressSubPath() string {
 
 func (iw *IngressWrapper) GetURL() string {
 	if !iw.rulesExist() {
-		log.Println("No rules exist in ingress: " + iw.Ingress.GetName())
+		log.Warnf("No rules exist in ingress: " + iw.Ingress.GetName())
 		return ""
 	}
 
@@ -85,7 +86,9 @@ func (iw *IngressWrapper) GetURL() string {
 	u, err := url.Parse(URL)
 
 	if err != nil {
-		log.Printf("URL parsing error in getURL() :%v", err)
+		log.WithFields(log.Fields{
+			"url": URL,
+		}).Error("URL parsing error in getURL()", err.Error())
 		return ""
 	}
 
@@ -137,14 +140,18 @@ func (iw *IngressWrapper) tryGetHealthEndpointFromIngress() (string, bool) {
 
 	service, err := iw.KubeClient.Core().Services(iw.Ingress.Namespace).Get(serviceName, meta_v1.GetOptions{})
 	if err != nil {
-		log.Printf("Get service from kubernetes cluster error:%v", err)
+		log.WithFields(log.Fields{
+			"service name": serviceName,
+		}).Error("Get service from kubernetes cluster error: ", err.Error())
 		return "", false
 	}
 
 	set := labels.Set(service.Spec.Selector)
 
 	if pods, err := iw.KubeClient.Core().Pods(iw.Ingress.Namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
-		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
+		log.WithFields(log.Fields{
+			"service": service.GetName(),
+		}).Error("Error to list pods: ", err.Error())
 	} else if len(pods.Items) > 0 {
 		pod := pods.Items[0]
 

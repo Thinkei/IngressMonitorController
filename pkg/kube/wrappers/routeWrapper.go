@@ -1,9 +1,10 @@
 package wrappers
 
 import (
-	"log"
 	"net/url"
 	"path"
+
+	log "github.com/sirupsen/logrus"
 
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stakater/IngressMonitorController/pkg/constants"
@@ -73,14 +74,18 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 
 	service, err := rw.KubeClient.Core().Services(rw.Route.Namespace).Get(serviceName, meta_v1.GetOptions{})
 	if err != nil {
-		log.Printf("Get service from kubernetes cluster error:%v", err)
+		log.WithFields(log.Fields{
+			"service name": serviceName,
+		}).Error("Get service from kubernetes cluster error: ", err.Error())
 		return "", false
 	}
 
 	set := labels.Set(service.Spec.Selector)
 
 	if pods, err := rw.KubeClient.Core().Pods(rw.Route.Namespace).List(meta_v1.ListOptions{LabelSelector: set.AsSelector().String()}); err != nil {
-		log.Printf("List Pods of service[%s] error:%v", service.GetName(), err)
+		log.WithFields(log.Fields{
+			"service": service.GetName(),
+		}).Error("Error to list pods: ", err.Error())
 	} else if len(pods.Items) > 0 {
 		pod := pods.Items[0]
 
@@ -91,7 +96,10 @@ func (rw *RouteWrapper) tryGetHealthEndpointFromRoute() (string, bool) {
 				return podContainers[0].ReadinessProbe.HTTPGet.Path, true
 			}
 		} else {
-			log.Printf("Pod has %d containers so skipping health endpoint", len(podContainers))
+			log.WithFields(log.Fields{
+				"number of containers": len(podContainers),
+				"service name":         serviceName,
+			}).Info("Skipping health endpoint because number of containers > 1")
 		}
 	}
 
@@ -111,7 +119,9 @@ func (rw *RouteWrapper) GetURL() string {
 	u, err := url.Parse(URL)
 
 	if err != nil {
-		log.Printf("URL parsing error in getURL() :%v", err)
+		log.WithFields(log.Fields{
+			"url": URL,
+		}).Error("URL parsing error in getURL()", err.Error())
 		return ""
 	}
 

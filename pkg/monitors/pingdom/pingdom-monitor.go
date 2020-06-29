@@ -59,10 +59,15 @@ func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, e
 	var match *models.Monitor
 
 	monitors := service.GetAll()
-	for _, mon := range monitors {
-		if mon.Name == name {
-			return &mon, nil
+
+	if monitors != nil {
+		for _, mon := range monitors {
+			if mon.Name == name {
+				return &mon, nil
+			}
 		}
+	} else {
+		return match, fmt.Errorf("GetAll() got error")
 	}
 
 	return match, fmt.Errorf("Unable to locate monitor with name %v", name)

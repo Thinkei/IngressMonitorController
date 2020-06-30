@@ -56,8 +56,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 }
 
 func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, error) {
-	var match *models.Monitor
-
+	// var match *models.Monitor
 	monitors := service.GetAll()
 
 	if monitors != nil {
@@ -66,11 +65,11 @@ func (service *PingdomMonitorService) GetByName(name string) (*models.Monitor, e
 				return &mon, nil
 			}
 		}
+		// Not match any monitors, so return to create a new one
+		return nil, nil
 	} else {
-		return match, fmt.Errorf("GetAll() got error")
+		return nil, fmt.Errorf("GetAll() got error")
 	}
-
-	return match, fmt.Errorf("Unable to locate monitor with name %v", name)
 }
 
 func (service *PingdomMonitorService) GetAll() []models.Monitor {

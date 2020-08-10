@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -27,6 +28,7 @@ const (
 	PingdomTags                               = "pingdom.monitor.stakater.com/tags"
 	PingdomAlertIntegrations                  = "pingdom.monitor.stakater.com/alert-integrations"
 	PingdomAlertContacts                      = "pingdom.monitor.stakater.com/alert-contacts"
+	PingdomProbeFilters                       = "pingdom.monitor.stakater.com/probe-filters"
 )
 
 // PingdomMonitorService interfaces with MonitorService
@@ -275,6 +277,20 @@ func (service *PingdomMonitorService) addAnnotationConfigToHttpCheck(httpCheck *
 			log.Println("Tags annotation detected. Setting Tags as: ", tagValue)
 		} else {
 			log.Println("Tag string should not contain spaces. Not applying tags.")
+		}
+	}
+
+	// Filters used for probe selections. Overwrites previous filters for check.
+	// To remove all filters from a check, use an empty value.
+	// Comma separated key:value pairs.
+	// Currently only region is supported. Possible values are 'EU', 'NA', 'APAC' and 'LATAM'. For example, "region: NA".
+	if probeFiltersValue, ok := annotations[PingdomProbeFilters]; ok {
+		var validID = regexp.MustCompile(`^region:\s*(EU|NA|APAC|LATAM)$`)
+
+		if validID.MatchString(probeFiltersValue) {
+			httpCheck.ProbeFilters = probeFiltersValue
+		} else {
+			log.Println("Probe filters value is not valid, then not applying ProbeFilters.")
 		}
 	}
 }

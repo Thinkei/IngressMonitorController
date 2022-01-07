@@ -300,4 +300,6 @@ func (service *PingdomMonitorService) addConfigToHttpCheck(httpCheck *pingdom.Ht
 		httpCheck.Paused = providerConfig.Paused
 		httpCheck.NotifyWhenBackup = providerConfig.NotifyWhenBackUp
 	}
+
+	httpCheck.ProbeFilters = "region:APAC"
 }

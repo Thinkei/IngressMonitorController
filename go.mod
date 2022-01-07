@@ -16,6 +16,7 @@ require (
 	github.com/openshift/api v0.0.0-20200526144822-34f54f12813a
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/russellcardullo/go-pingdom v1.3.0
+	github.com/sirupsen/logrus v1.6.0
 	github.com/stakater/operator-utils v0.1.13
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee // indirect

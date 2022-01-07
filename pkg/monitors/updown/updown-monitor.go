@@ -2,7 +2,6 @@
 package updown
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -96,8 +95,8 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 			return &updownMonitor, nil
 		}
 	}
-
-	return nil, fmt.Errorf("Unable to locate %v monitor", monitorName)
+	log.Printf("There is no UpdownMonitorService with name %s found.", monitorName)
+	return nil, nil
 }
 
 // Add function method will add a monitor (updown check)

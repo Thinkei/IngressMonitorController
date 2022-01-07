@@ -64,7 +64,7 @@ func (service *MonitorService) GetByName(name string) (monitor *models.Monitor, 
 		}
 	}
 	// monitor not found and no errors raised
-	log.Printf("There is no gcloud MonitorService with name %s found.", name)
+	log.Info(fmt.Sprintf("There is no gcloud MonitorService with name %s found.", name))
 	return nil, nil
 }
 

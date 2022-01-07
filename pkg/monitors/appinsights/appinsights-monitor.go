@@ -199,7 +199,7 @@ func (aiService *AppinsightsMonitorService) GetByName(monitorName string) (*mode
 	if err != nil {
 		// if not found let's mark it as non-error
 		if webtest.Response.StatusCode == http.StatusNotFound {
-			log.Printf("Application Insights WebTest %s was not found in Resource Group %s", monitorName, aiService.resourceGroup)
+			log.Info(fmt.Sprintf("Application Insights WebTest %s was not found in Resource Group %s", monitorName, aiService.resourceGroup))
 			return nil, nil
 		}
 		return nil, fmt.Errorf("Error retrieving Application Insights WebTests %s (Resource Group %s): %v", monitorName, aiService.resourceGroup, err)

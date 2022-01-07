@@ -47,7 +47,7 @@ func (service *PingdomMonitorService) Setup(p config.Provider) {
 		BaseURL:  service.url,
 	})
 	if err != nil {
-		log.Info(fmt.Sprintf("Error Setting Up Monitor Service: ", err.Error()))
+		log.Info(fmt.Sprintln("Error Setting Up Monitor Service: ", err.Error()))
 	}
 }
 

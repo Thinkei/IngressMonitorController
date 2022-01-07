@@ -2,6 +2,7 @@
 package updown
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -95,7 +96,7 @@ func (updownService *UpdownMonitorService) GetByName(monitorName string) (*model
 			return &updownMonitor, nil
 		}
 	}
-	log.Printf("There is no UpdownMonitorService with name %s found.", monitorName)
+	log.Info(fmt.Sprintf("There is no UpdownMonitorService with name %s found.", monitorName))
 	return nil, nil
 }
 

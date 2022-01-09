@@ -24,7 +24,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
-	"github.com/stakater/IngressMonitorController/pkg/util"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -42,6 +41,10 @@ type EndpointMonitorReconciler struct {
 	MonitorServices []monitors.MonitorServiceProxy
 }
 
+const (
+	MonitorName = "monitor.stakater.com/name"
+)
+
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors,verbs=get;list;watch
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=endpointmonitor.stakater.com,resources=endpointmonitors/finalizers,verbs=update
@@ -58,17 +61,26 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// Fetch the EndpointMonitor instance
 	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
+	err := r.Get(context.TODO(), req.NamespacedName, instance)
 
-	var monitorName string
-	format, err := util.GetNameTemplateFormat(config.GetControllerConfig().MonitorNameTemplate)
-	if err != nil {
-		log.Error(err, "Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
-		monitorName = req.Name + "-" + req.Namespace
-	} else {
-		monitorName = fmt.Sprintf(format, req.Name, req.Namespace)
+	if instance == nil {
+		return reconcile.Result{}, nil
 	}
 
-	err = r.Get(context.TODO(), req.NamespacedName, instance)
+	var monitorName string
+
+	metadata_obj := instance.ObjectMeta
+	annotations_obj := metadata_obj.GetAnnotations()
+	monitorName = annotations_obj[MonitorName]
+
+	// format, err := util.GetNameTemplateFormat(config.GetControllerConfig().MonitorNameTemplate)
+	// if err != nil {
+	//	log.Error(err, "Failed to parse MonitorNameTemplate, using default template `{{.Name}}-{{.Namespace}}`")
+	//	monitorName = req.Name + "-" + req.Namespace
+	// } else {
+	//	monitorName = fmt.Sprintf(format, req.Name, req.Namespace)
+	// }
+
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.

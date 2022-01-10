@@ -24,10 +24,10 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	endpointmonitorv1alpha1 "github.com/stakater/IngressMonitorController/api/v1alpha1"
@@ -61,7 +61,7 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 
 	// Fetch the EndpointMonitor instance
 	instance := &endpointmonitorv1alpha1.EndpointMonitor{}
-	err := r.Get(context.TODO(), req.NamespacedName, instance)
+	err := r.Get(ctx, req.NamespacedName, instance)
 
 	if instance == nil {
 		return reconcile.Result{}, nil
@@ -82,14 +82,51 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	// }
 
 	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			return r.handleDelete(req, instance, monitorName)
-		}
+		// if errors.IsNotFound(err) {
+		// Request object not found, could have been deleted after reconcile request.
+		// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+		// Return and don't requeue
+		// return r.handleDelete(req, instance, monitorName)
+		// }
 		// Error reading the object - requeue the request.
-		return reconcile.Result{}, err
+		// return reconcile.Result{}, err
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// name of our custom finalizer
+	myFinalizerName := "endpointmonitor.stakater.com/finalizer"
+
+	// examine DeletionTimestamp to determine if object is under deletion
+	if instance.ObjectMeta.DeletionTimestamp.IsZero() {
+		// The object is not being deleted, so if it does not have our finalizer,
+		// then lets add the finalizer and update the object. This is equivalent
+		// registering our finalizer.
+		if !controllerutil.ContainsFinalizer(instance, myFinalizerName) {
+			controllerutil.AddFinalizer(instance, myFinalizerName)
+			if err := r.Update(ctx, instance); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+	} else {
+		if controllerutil.ContainsFinalizer(instance, myFinalizerName) {
+			// The object is being deleted
+			// our finalizer is present, so lets handle any external dependency
+			r.handleDelete(req, instance, monitorName)
+			// if err := r.deleteExternalResources(instance); err != nil {
+			// if fail to delete the external dependency here, return with error
+			// so that it can be retried
+			// return ctrl.Result{}, err
+			// }
+
+			// remove our finalizer from the list and update it.
+			controllerutil.RemoveFinalizer(instance, myFinalizerName)
+			if err := r.Update(ctx, instance); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+
+		// Stop reconciliation as the item is being deleted
+		return ctrl.Result{}, nil
 	}
 
 	// Handle CreationDelay

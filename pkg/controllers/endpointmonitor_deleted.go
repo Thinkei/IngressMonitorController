@@ -11,11 +11,6 @@ import (
 func (r *EndpointMonitorReconciler) handleDelete(request reconcile.Request, instance *endpointmonitorv1alpha1.EndpointMonitor, monitorName string) (reconcile.Result, error) {
 	log := r.Log.WithValues("endpointMonitor", request.Namespace)
 
-	if instance == nil {
-		// Instance not found, nothing to do
-		return reconcile.Result{}, nil
-	}
-
 	if !config.GetControllerConfig().EnableMonitorDeletion {
 		log.Info("Monitor deletion is disabled. Skipping deletion for monitor: " + monitorName)
 		return reconcile.Result{}, nil

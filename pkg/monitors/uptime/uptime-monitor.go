@@ -2,7 +2,6 @@ package uptime
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 	"sort"
@@ -59,9 +58,8 @@ func (monitor *UpTimeMonitorService) GetByName(name string) (*models.Monitor, er
 		}
 	}
 
-	errorString := name + " not found"
-	log.Info(errorString)
-	return nil, errors.New(errorString)
+	log.Info(fmt.Sprintf("There is no UpTimeMonitorService with name %s found.", name))
+	return nil, nil
 }
 
 func (monitor *UpTimeMonitorService) GetAll() []models.Monitor {

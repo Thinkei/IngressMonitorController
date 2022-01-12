@@ -3,6 +3,7 @@ package pingdom
 import (
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stakater/IngressMonitorController/pkg/config"
 	"github.com/stakater/IngressMonitorController/pkg/models"
@@ -21,26 +22,35 @@ func TestAddMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
-	m := models.Monitor{Name: "google-test", URL: "https://google1.com"}
+	urlToTest := "https://google1.com"
+	parsedUrl, err := url.Parse(urlToTest)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	m := models.Monitor{Name: "google-test", URL: urlToTest}
 	service.Add(m)
-
+	//Creation delay
+	time.Sleep(5 * time.Second)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-
-	// Pingdom returns the hostname only without prefix
-	mURL, _ := url.Parse(m.URL)
-	if mRes.Name != m.Name || mRes.URL != mURL.Host {
-		t.Errorf("URL and name should be the same. request: %+v response: %+v", m, mRes)
+	// mRes.URL is a domain name, without scheme, so we parsed URL previously
+	if mRes.Name != m.Name || mRes.URL != parsedUrl.Host {
+		t.Errorf("URL and name should be the same %+v", mRes)
 	}
 
 	// Cleanup
 	service.Remove(*mRes)
+	//Deletion delay
+	time.Sleep(5 * time.Second)
 	monitor, err := service.GetByName(mRes.Name)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
 	if monitor != nil {
-		t.Error("Monitor should've been deleted ", monitor, err)
+		t.Error("Monitor should've been deleted ", monitor)
 	}
 }
 
@@ -57,21 +67,22 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 		return
 	}
 	service.Setup(*provider)
-
-	// Create initial record
-	m := models.Monitor{Name: "google-test", URL: "https://google.com"}
+	urlToTest := "https://google.com"
+	parsedUrl, err := url.Parse(urlToTest)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+	m := models.Monitor{Name: "google-test", URL: urlToTest}
 	service.Add(m)
-
+	//Creation delay
+	time.Sleep(5 * time.Second)
 	mRes, err := service.GetByName("google-test")
 
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-
-	// Pingdom returns the hostname only without prefix
-	mURL, _ := url.Parse(m.URL)
-	if mRes.Name != m.Name || mRes.URL != mURL.Host {
-		t.Errorf("URL and name should be the same. request: %+v response: %+v", m, mRes)
+	if mRes.Name != m.Name || mRes.URL != parsedUrl.Host {
+		t.Error("URL and name should be the same")
 	}
 
 	// Update the record
@@ -83,15 +94,17 @@ func TestUpdateMonitorWithCorrectValues(t *testing.T) {
 	if err != nil {
 		t.Error("Error: " + err.Error())
 	}
-
-	if mRes.Name != m.Name || mRes.URL != "facebook.com" {
-		t.Errorf("URL and name should be the same. request: %+v response: %+v", m, mRes)
+	if mRes.URL != "facebook.com" {
+		t.Error("URL and name should be the same")
 	}
 
 	// Cleanup
 	service.Remove(*mRes)
 	monitor, err := service.GetByName(mRes.Name)
+	if err != nil {
+		t.Error("Error: " + err.Error())
+	}
 	if monitor != nil {
-		t.Error("Monitor should've been deleted ", monitor, err)
+		t.Error("Monitor should've been deleted ", monitor)
 	}
 }

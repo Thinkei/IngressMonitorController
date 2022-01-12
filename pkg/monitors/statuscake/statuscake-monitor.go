@@ -3,7 +3,7 @@ package statuscake
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -206,8 +206,8 @@ func (service *StatusCakeMonitorService) GetByName(name string) (*models.Monitor
 			return &monitor, nil
 		}
 	}
-	errorString := "GetByName Request failed for name: " + name
-	return nil, errors.New(errorString)
+	log.Info(fmt.Sprintf("There is no StatusCakeMonitorService with name %s found.", name))
+	return nil, nil
 }
 
 // GetAll function will fetch all monitors

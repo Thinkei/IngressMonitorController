@@ -134,7 +134,12 @@ func (r *EndpointMonitorReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	delay := time.Until(createTime.Add(config.GetControllerConfig().CreationDelay))
 
 	for index := 0; index < len(r.MonitorServices); index++ {
-		monitor := findMonitorByName(r.MonitorServices[index], monitorName)
+		monitor, monitor_err := findMonitorByName(r.MonitorServices[index], monitorName)
+
+		if monitor_err != nil {
+			continue
+		}
+
 		if monitor != nil {
 			// Monitor already exists, update if required
 			err = r.handleUpdate(req, instance, *monitor, r.MonitorServices[index])

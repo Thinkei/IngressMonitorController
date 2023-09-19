@@ -5,12 +5,12 @@ import (
 	"github.com/stakater/IngressMonitorController/pkg/monitors"
 )
 
-func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) *models.Monitor {
+func findMonitorByName(monitorService monitors.MonitorServiceProxy, monitorName string) (*models.Monitor, error) {
 
-	monitor, _ := monitorService.GetByName(monitorName)
+	monitor, err := monitorService.GetByName(monitorName)
 	// Monitor Exists
-	if monitor != nil {
-		return monitor
+	if monitor != nil && err == nil {
+		return monitor, nil
 	}
-	return nil
+	return nil, err
 }

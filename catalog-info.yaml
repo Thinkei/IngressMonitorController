@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ingressmonitorcontroller
+  tags:
+    - external
+    - fork
+    - public
+    - go
+  annotations:
+    github.com/project-slug: Thinkei/ingressmonitorcontroller
+spec:
+  type: service
+  system: core-technology
+  lifecycle: production

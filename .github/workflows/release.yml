@@ -15,17 +15,17 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
         with:
           fetch-depth: 0 # See: https://goreleaser.com/ci/actions/
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@be3c94b385c4f180051c996d336f57a34c397495 # v3
         with:
           go-version: ${{ env.GOLANG_VERSION }}
 
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@master
+        uses: goreleaser/goreleaser-action@fdcf0b9df926c8dd93d4e7f15c508dd346e09eb1 # master
         with:
           version: latest
           args: release --rm-dist
@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
-        uses: 8398a7/action-slack@v3
+        uses: 8398a7/action-slack@77eaa4f1c608a7d68b38af4e3f739dcd8cba273e # v3
         if: always()
         with:
           status: ${{ job.status }}

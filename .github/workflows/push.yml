@@ -30,7 +30,7 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v6.0.2
+      uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       with:
         persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal token
         fetch-depth: 0 # otherwise, you will fail to push refs to dest repo
@@ -41,7 +41,7 @@ jobs:
         go-version: ${{ env.GOLANG_VERSION }}
 
     - name: Lint
-      uses: golangci/golangci-lint-action@3a919529898de77ec3da873e3063ca4b10e7f5cc # v9.2.0
+      uses: golangci/golangci-lint-action@3a919529898de77ec3da873e3063ca4b10e7f5cc # v3.7.0
       with:
         version: v1.50.1
         only-new-issues: false
@@ -80,7 +80,7 @@ jobs:
 
     - name: Generate Tag
       id: generate_tag
-      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42 # 1.75.0
+      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42 # 1.61.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
@@ -88,17 +88,17 @@ jobs:
         DRY_RUN: true
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7 # v4.0.0
+      uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7 # v2.2.0
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55 # v4.0.0
+      uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55 # v2.10.0
       with:
         driver-opts: |
             image=moby/buildkit:v0.9.3
         buildkitd-flags: --debug
 
     - name: Login to Registry
-      uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v4.1.0
+      uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
       with:
         username: ${{ secrets.STAKATER_DOCKERHUB_USERNAME }}
         password: ${{ secrets.STAKATER_DOCKERHUB_PASSWORD }}
@@ -108,7 +108,7 @@ jobs:
         echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
 
     - name: Build and push
-      uses: docker/build-push-action@0a97817b6ade9f46837855d676c4cca3a2471fc9 # v7.0.0
+      uses: docker/build-push-action@0a97817b6ade9f46837855d676c4cca3a2471fc9 # v4.2.1
       with:
         context: .
         file: ${{ env.DOCKER_FILE_PATH  }}
@@ -129,7 +129,7 @@ jobs:
     # Generate tag for operator without "v"
     - name: Generate Operator Tag
       id: generate_operator_tag
-      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42 # 1.75.0
+      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42 # 1.61.0
       env:
         GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
         WITH_V: false
@@ -145,7 +145,7 @@ jobs:
 
     # Install kustomize
     - name: Install kustomize
-      uses: imranismail/setup-kustomize@2ba527d4d055ab63514ba50a99456fc35684947f # v3.0.0
+      uses: imranismail/setup-kustomize@2ba527d4d055ab63514ba50a99456fc35684947f # v2.1.0
       with:
         kustomize-version: ${{ env.KUSTOMIZE_VERSION }}
 
@@ -159,7 +159,7 @@ jobs:
       run: operator-sdk bundle validate ./bundle --select-optional name=operatorhub
 
     - name: Build and push Bundle Image
-      uses: docker/build-push-action@0a97817b6ade9f46837855d676c4cca3a2471fc9 # v7.0.0
+      uses: docker/build-push-action@0a97817b6ade9f46837855d676c4cca3a2471fc9 # v4.2.1
       with:
         context: .
         file: ${{ env.BUNDLE_DOCKER_FILE_PATH  }}
@@ -213,7 +213,7 @@ jobs:
 
     # Push Latest Tag
     - name: Push Latest Tag
-      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42 # 1.75.0
+      uses: anothrNick/github-tag-action@8c8163ef62cf9c4677c8e800f36270af27930f42 # 1.61.0
       env:
         GITHUB_TOKEN: ${{ secrets.STAKATER_GITHUB_TOKEN }}
         WITH_V: true
